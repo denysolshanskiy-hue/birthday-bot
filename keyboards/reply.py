@@ -29,3 +29,7 @@ admin_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+KeyboardButton(
+    text="❌ Не оплатили"
+)
