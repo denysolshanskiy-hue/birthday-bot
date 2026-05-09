@@ -31,11 +31,12 @@ def setup_scheduler(bot):
     scheduler = AsyncIOScheduler()
 
     scheduler.add_job(
-        birthday_check,
-        trigger="cron",
-        hour=10,
-        minutes=0
-    )
+    birthday_check,
+    trigger="cron",
+    hour=10,
+    minute=0,
+    kwargs={"bot": bot}
+)
     scheduler.add_job(
         birthday_reminders,
         trigger="cron",
