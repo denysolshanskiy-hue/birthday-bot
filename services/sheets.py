@@ -66,20 +66,22 @@ def save_telegram_data(row: int, tg_id: int, username: str):
 
 
 def create_collection(
-    birthday_name: str,
-    birthday_date: str,
-    amount: int
+    birthday_name,
+    birthday_date,
+    amount,
+    participants
 ):
     collections = collections_sheet.get_all_records()
 
     collection_id = len(collections) + 1
 
     collections_sheet.append_row([
-        collection_id,
-        birthday_name,
-        birthday_date,
-        amount
-    ])
+    collection_id,
+    birthday_name,
+    birthday_date,
+    amount,
+    ",".join(participants)
+]
 
     return collection_id
 
