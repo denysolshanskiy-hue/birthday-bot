@@ -30,10 +30,9 @@ dp.include_router(payments_router)
 dp.include_router(admin_router)
 async def main():
     print("Bot started")
+
     setup_scheduler(bot)
 
+    await start_webserver()
+
     await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
