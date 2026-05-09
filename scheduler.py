@@ -41,7 +41,7 @@ def setup_scheduler(bot):
         birthday_reminders,
         trigger="cron",
         hour=9,
-        minutes=0,
+        minute=0,
         kwargs={"bot": bot}
     )
     scheduler.start()
