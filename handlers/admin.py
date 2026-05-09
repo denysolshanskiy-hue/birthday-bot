@@ -5,7 +5,9 @@ from services.sheets import (
     collections_sheet,
     payments_sheet
 )
-
+from services.sheets import (
+    get_all_users
+)
 router = Router()
 
 
@@ -34,7 +36,7 @@ async def active_collections(
 
     await message.answer(text)
 
-
+#============================ Payments ===========================
 @router.message(F.text == "✅ Оплати")
 async def payments_stats(
     message: Message
@@ -55,6 +57,63 @@ async def payments_stats(
         text += (
             f"#{payment['collection_id']} | "
             f"{payment['full_name']}\n"
+        )
+
+    await message.answer(text)
+#============================== Statistic =================================
+@router.message(F.text == "📊 Статистика")
+async def statistics(
+    message: Message
+):
+    users = get_all_users()
+
+    collections = (
+        collections_sheet.get_all_records()
+    )
+
+    payments = (
+        payments_sheet.get_all_records()
+    )
+
+    active_users = [
+        user for user in users
+        if str(user["TG_ID"]).strip()
+    ]
+
+    text = (
+        "📊 Статистика бота\n\n"
+
+        f"👥 Учасників: {len(users)}\n"
+        f"✅ Авторизованих: {len(active_users)}\n"
+        f"🎉 Зборів: {len(collections)}\n"
+        f"💸 Оплат: {len(payments)}"
+    )
+
+    await message.answer(text)
+
+#========================== Users ==================================
+@router.message(F.text == "👥 Учасники")
+async def participants(
+    message: Message
+):
+    users = get_all_users()
+
+    active_users = [
+        user for user in users
+        if str(user["TG_ID"]).strip()
+    ]
+
+    if not active_users:
+        await message.answer(
+            "Немає авторизованих учасників"
+        )
+        return
+
+    text = "👥 Учасники:\n\n"
+
+    for user in active_users:
+        text += (
+            f"• {user['ПІБ']}\n"
         )
 
     await message.answer(text)
