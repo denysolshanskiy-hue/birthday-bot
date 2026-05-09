@@ -23,11 +23,14 @@ async def send_collection(
         return
 
     collection_id = create_collection(
-        birthday_name=birthday_user["ПІБ"],
-        birthday_date=birthday_user["ДН"],
-        amount=amount
-    )
-
+    birthday_name=birthday_user["ПІБ"],
+    birthday_date=birthday_user["ДН"],
+    amount=amount,
+    participants=[
+        participant["TG_ID"]
+        for participant in participants
+    ]
+)
     text = (
         f"🎉 Через 2 дні день народження у "
         f"{birthday_user['ПІБ']}\n\n"
