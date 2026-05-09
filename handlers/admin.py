@@ -117,3 +117,66 @@ async def participants(
         )
 
     await message.answer(text)
+#========================== not paid ==================================
+@router.message(F.text == "❌ Не оплатили")
+async def unpaid_users(
+    message: Message
+):
+    collections = (
+        collections_sheet.get_all_records()
+    )
+
+    payments = (
+        payments_sheet.get_all_records()
+    )
+
+    if not collections:
+        await message.answer(
+            "Активних зборів немає"
+        )
+        return
+
+    latest_collection = collections[-1]
+
+    participants = str(
+        latest_collection["participants"]
+    ).split(",")
+
+    paid_users = [
+        payment["user_id"]
+        for payment in payments
+        if str(payment["collection_id"])
+        ==
+        str(latest_collection["collection_id"])
+    ]
+
+    unpaid = [
+        user_id
+        for user_id in participants
+        if user_id not in paid_users
+    ]
+
+    users = get_all_users()
+
+    unpaid_names = []
+
+    for user in users:
+        if str(user["TG_ID"]) in unpaid:
+            unpaid_names.append(
+                user["ПІБ"]
+            )
+
+    if not unpaid_names:
+        await message.answer(
+            "✅ Усі оплатили"
+        )
+        return
+
+    text = (
+        "❌ Не оплатили:\n\n"
+    )
+
+    for name in unpaid_names:
+        text += f"• {name}\n"
+
+    await message.answer(text)
