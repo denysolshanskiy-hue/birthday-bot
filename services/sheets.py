@@ -81,7 +81,7 @@ def create_collection(
     birthday_date,
     amount,
     ",".join(participants)
-]
+])
 
     return collection_id
 
