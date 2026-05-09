@@ -32,7 +32,7 @@ async def send_collection(
     ]
 )
     text = (
-        f"🎉 Через 2 дні день народження у "
+        f"😻Привіт, котики🎉 Через 2 дні день народження у "
         f"{birthday_user['ПІБ']}\n\n"
         f"Сума збору: {amount} грн\n\n"
         f"{BANK_LINK}"
