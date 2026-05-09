@@ -4,6 +4,7 @@ from aiogram.client.default import DefaultBotProperties
 from handlers.payments import router as payments_router
 from dotenv import load_dotenv
 from scheduler import setup_scheduler
+from webserver import start_webserver
 import asyncio
 import os
 from handlers.admin import (
