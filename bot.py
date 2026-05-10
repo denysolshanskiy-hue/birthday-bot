@@ -5,6 +5,9 @@ from handlers.payments import router as payments_router
 from dotenv import load_dotenv
 from scheduler import setup_scheduler
 from webserver import start_webserver
+from handlers.cards import (
+    router as cards_router
+)
 import asyncio
 import os
 from handlers.admin import (
@@ -28,6 +31,7 @@ dp.include_router(start_router)
 dp.include_router(auth_router)
 dp.include_router(payments_router)
 dp.include_router(admin_router)
+dp.include_router(cards_router)
 async def main():
     print("Bot started")
 
