@@ -33,3 +33,6 @@ admin_keyboard = ReplyKeyboardMarkup(
 KeyboardButton(
     text="❌ Не оплатили"
 )
+KeyboardButton(
+    text="💳 Картки"
+)
