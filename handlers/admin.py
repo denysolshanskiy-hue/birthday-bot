@@ -183,7 +183,7 @@ async def unpaid_users(
 
 @router.message(F.text == "🚀 Тестовий збір")
 async def test_collection(message: Message):
-    from services.birthdays import get_upcoming_birthdays
+    from services.birthday import get_upcoming_birthdays
     from utils.collection import build_collection_data
     from services.mailing import send_collection
 
