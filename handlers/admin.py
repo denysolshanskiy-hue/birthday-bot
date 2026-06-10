@@ -183,13 +183,25 @@ async def unpaid_users(
 
 @router.message(F.text == "🚀 Тестовий збір")
 async def test_collection(message: Message):
-    from services.birthday import get_upcoming_birthdays
-    from utils.collection import build_collection_data
-    from services.mailing import send_collection
+    from services.birthday import (
+        get_upcoming_birthdays,
+        build_collection_data
+    )
+
+    from services.mailing import (
+        send_collection
+    )
 
     birthdays = get_upcoming_birthdays()
 
+    if not birthdays:
+        await message.answer(
+            "Найближчих ДН не знайдено"
+        )
+        return
+
     for birthday_user in birthdays:
+
         collection = build_collection_data(
             birthday_user
         )
