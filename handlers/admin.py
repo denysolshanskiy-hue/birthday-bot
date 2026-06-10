@@ -192,7 +192,7 @@ async def test_collection(message: Message):
         send_collection
     )
 
-    birthdays = get_upcoming_birthdays(1)
+    birthdays = get_upcoming_birthdays(2)
 
     if not birthdays:
         await message.answer(
