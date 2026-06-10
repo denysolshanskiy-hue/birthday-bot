@@ -180,3 +180,25 @@ async def unpaid_users(
         text += f"• {name}\n"
 
     await message.answer(text)
+
+@router.message(F.text == "🚀 Тестовий збір")
+async def test_collection(message: Message):
+    from services.birthdays import get_upcoming_birthdays
+    from utils.collection import build_collection_data
+    from services.mailing import send_collection
+
+    birthdays = get_upcoming_birthdays()
+
+    for birthday_user in birthdays:
+        collection = build_collection_data(
+            birthday_user
+        )
+
+        await send_collection(
+            message.bot,
+            collection
+        )
+
+    await message.answer(
+        "✅ Збір запущено"
+    )
