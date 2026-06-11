@@ -10,3 +10,20 @@ def paid_button(collection_id: int):
     )
 
     return builder.as_markup()
+
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
+
+def remind_button():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🔔 Нагадати всім",
+                    callback_data="remind_unpaid"
+                )
+            ]
+        ]
+    )
