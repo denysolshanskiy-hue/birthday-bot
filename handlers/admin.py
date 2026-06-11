@@ -143,7 +143,7 @@ async def unpaid_users(message: Message):
     participant_ids = [
         x.strip()
         for x in str(
-            latest_collection["created_at"]
+            latest_collection["participants"]
         ).split(",")
     ]
 
@@ -221,7 +221,7 @@ async def remind_unpaid(
     participant_ids = [
         x.strip()
         for x in str(
-            latest_collection["created_at"]
+            latest_collection["participants"]
         ).split(",")
     ]
 
