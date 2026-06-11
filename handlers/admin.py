@@ -142,6 +142,9 @@ async def unpaid_users(
 
     latest_collection = collections[-1]
 
+    await message.answer(str(latest_collection))
+    return
+
     participant_ids = [
     x.strip()
     for x in str(
