@@ -131,36 +131,57 @@ async def unpaid_users(message: Message):
     payments = payments_sheet.get_all_records()
     users = get_all_users()
 
-    paid_ids = {
-        str(payment["user_id"]).strip()
-        for payment in payments
-        if str(payment["collection_id"]) == "1"
-    }
-
-    unpaid_names = []
     latest_collection = collections_sheet.get_all_records()[-1]
 
     birthday_name = latest_collection["birthday_name"]
+
+    participant_ids = [
+        x.strip()
+        for x in str(
+            latest_collection["created_at"]
+        ).split(",")
+    ]
+
+    paid_ids = {
+        str(payment["user_id"]).strip()
+        for payment in payments
+        if str(payment["collection_id"])
+        ==
+        str(latest_collection["collection_id"])
+    }
+
+    unpaid_names = []
+
     for user in users:
 
-        tg_id = str(user["TG_ID"]).strip()
+        tg_id = str(
+            user["TG_ID"]
+        ).strip()
 
         if not tg_id:
             continue
 
-    if (
-        tg_id not in paid_ids
-        and user["ПІБ"] != birthday_name
-    ):
-        unpaid_names.append(user["ПІБ"])
+        if (
+            tg_id in participant_ids
+            and tg_id not in paid_ids
+            and user["ПІБ"] != birthday_name
+        ):
+            unpaid_names.append(
+                user["ПІБ"]
+            )
 
     if not unpaid_names:
-        await message.answer("✅ Усі оплатили")
+        await message.answer(
+            "✅ Усі оплатили"
+        )
         return
 
     text = (
         f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
-        + "\n".join(f"• {name}" for name in unpaid_names)
+        + "\n".join(
+            f"• {name}"
+            for name in unpaid_names
+        )
     )
 
     from keyboards.inline import remind_button
@@ -169,6 +190,7 @@ async def unpaid_users(message: Message):
         text,
         reply_markup=remind_button()
     )
+    
 @router.callback_query(
     F.data == "remind_unpaid"
 )
