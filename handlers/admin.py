@@ -201,38 +201,3 @@ async def unpaid_users(
     f"paid={len(paid_ids)}\n"
     f"unpaid={len(unpaid_names)}"
 )
-@router.message(F.text == "🚀 Тестовий збір")
-async def test_collection(message: Message):
-    from services.birthday import (
-        get_upcoming_birthdays,
-        build_collection_data
-    )
-
-    from services.mailing import (
-        send_collection
-    )
-
-    birthdays = get_upcoming_birthdays(2)
-
-    if not birthdays:
-        await message.answer(
-            "Найближчих ДН не знайдено"
-        )
-        return
-
-    for birthday_user in birthdays:
-
-        collection = build_collection_data(
-            birthday_user
-        )
-
-        await send_collection(
-            message.bot,
-            collection
-        )
-
-    await message.answer(
-        "✅ Збір запущено"
-    )
-
-    await message.answer(text)
