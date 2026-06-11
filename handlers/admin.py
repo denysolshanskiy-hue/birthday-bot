@@ -161,6 +161,10 @@ async def unpaid_users(message: Message):
 
     unpaid_names = []
 
+    print(f"DEBUG: Участники: {participant_ids}")
+    print(f"DEBUG: Оплачено: {paid_ids}")
+    print(f"DEBUG: День рождения: {birthday_name}")
+
     for user in users:
 
         tg_id = str(
@@ -169,6 +173,11 @@ async def unpaid_users(message: Message):
 
         if not tg_id:
             continue
+
+        print(f"DEBUG: Перевірка {user['ПІБ']} (TG_ID: {tg_id})")
+        print(f"  - В учасниках? {tg_id in participant_ids}")
+        print(f"  - Оплатив? {tg_id in paid_ids}")
+        print(f"  - День рождения? {user['ПІБ'] == birthday_name}")
 
         if (
             tg_id in participant_ids
