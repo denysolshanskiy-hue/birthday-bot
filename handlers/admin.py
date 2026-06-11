@@ -158,7 +158,7 @@ async def unpaid_users(
     ]
 
     await message.answer(
-    str(latest_collection["participants"])
+    str(latest_collection["created_at"])
     )
     return
 
