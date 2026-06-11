@@ -10,6 +10,7 @@ scope = [
 
 import json
 import os
+from datetime import datetime
 
 credentials_dict = json.loads(
     os.getenv("GOOGLE_CREDENTIALS")
@@ -80,22 +81,50 @@ def create_collection(
     birthday_name,
     birthday_date,
     amount,
-    ",".join([str(p["TG_ID"]) for p in participants])
+    ",".join([str(p) for p in participants])
 ])
 
     return collection_id
 
 
+def add_all_participants_to_payments(collection_id, birthday_name):
+    """Додати всіх авторизованих учасників (окрім іменинника) у payments з порожнім paid_at"""
+    users = get_all_users()
+    
+    for user in users:
+        tg_id = str(user["TG_ID"]).strip()
+        
+        # Пропускаємо іменинника та тих, хто не авторизований
+        if not tg_id or user["ПІБ"] == birthday_name:
+            continue
+        
+        payments_sheet.append_row([
+            collection_id,
+            tg_id,
+            user["ПІБ"],
+            ""  # paid_at - порожнє
+        ])
+
+
 def add_payment(
     collection_id: int,
-    user_id: str,
-    full_name: str
+    user_id: str
 ):
-    payments_sheet.append_row([
-        collection_id,
-        user_id,
-        full_name
-    ])
+    """Оновити дату оплати для існуючого запису у payments"""
+    payments = payments_sheet.get_all_records()
+    
+    for index, payment in enumerate(payments, start=2):
+        if (str(payment["collection_id"]) == str(collection_id) and
+            str(payment["user_id"]).strip() == str(user_id).strip()):
+            # Оновити дату оплати
+            payments_sheet.update_cell(
+                index, 
+                4,  # Колонка paid_at
+                datetime.now().strftime("%d.%m.%Y %H:%M")
+            )
+            return
+    
+    print(f"Запис не знайдено: collection_id={collection_id}, user_id={user_id}")
 
 
 def payment_exists(
@@ -108,7 +137,7 @@ def payment_exists(
         if (
             str(payment["collection_id"]) == str(collection_id)
             and
-            str(payment["user_id"]) == str(user_id)
+            str(payment["user_id"]).strip() == str(user_id).strip()
         ):
             return True
 
@@ -157,20 +186,3 @@ def get_collection_payments(collection_id):
             result.append(payment)
 
     return result
-def get_last_collection():
-    collections = collections_sheet.get_all_records()
-
-    if not collections:
-        return None
-
-    return collections[-1]
-
-
-def get_collection_payments(collection_id):
-    payments = payments_sheet.get_all_records()
-
-    return [
-        payment
-        for payment in payments
-        if str(payment["collection_id"]) == str(collection_id)
-    ]
