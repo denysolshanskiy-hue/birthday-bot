@@ -80,7 +80,7 @@ def create_collection(
     birthday_name,
     birthday_date,
     amount,
-    ",".join(map(str, participants))
+    ",".join([str(p["TG_ID"]) for p in participants])
 ])
 
     return collection_id
