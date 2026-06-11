@@ -218,7 +218,5 @@ async def test_collection(message: Message):
     await message.answer(
         "✅ Збір запущено"
     )
-        )
-    )
 
     await message.answer(text)
