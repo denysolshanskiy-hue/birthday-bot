@@ -140,16 +140,15 @@ async def unpaid_users(message: Message):
 
         tg_id = str(user["TG_ID"]).strip()
 
-        # тільки авторизовані
-        if not tg_id:
-            continue
-
-        # не враховуємо іменинника
-        if user["ПІБ"] == "Бондар Альона Олександрівна":
-            continue
-
-        if tg_id not in paid_ids:
-            unpaid_names.append(user["ПІБ"])
+        if (
+            tg_id
+            and tg_id not in paid_ids
+            and user["ПІБ"] != birthday_name
+        ):
+            await callback.bot.send_message(
+                tg_id,
+                reminder_text
+            )
 
     if not unpaid_names:
         await message.answer("✅ Усі оплатили")
@@ -160,4 +159,20 @@ async def unpaid_users(message: Message):
         + "\n".join(f"• {name}" for name in unpaid_names)
     )
 
-    await message.answer(text)
+    from keyboards.inline import remind_button
+
+    await message.answer(
+        text,
+        reply_markup=remind_button()
+    )
+
+    await callback.message.answer(
+        f"🔔 Надіслано {count} нагадувань"
+    )
+    await callback.message.edit_reply_markup(
+    reply_markup=None
+)
+@router.callback_query(
+    F.data == "remind_unpaid"
+)
+async def remind_unpaid(callback):
