@@ -137,7 +137,8 @@ async def unpaid_users(message: Message):
     unpaid_names = []
 
     for user in users:
-
+        birthday_name = latest_collection["birthday_name"]
+        
         tg_id = str(user["TG_ID"]).strip()
 
         if (
