@@ -138,7 +138,9 @@ async def unpaid_users(message: Message):
     }
 
     unpaid_names = []
+    latest_collection = collections_sheet.get_all_records()[-1]
 
+    birthday_name = latest_collection["birthday_name"]
     for user in users:
 
         tg_id = str(user["TG_ID"]).strip()
@@ -146,8 +148,11 @@ async def unpaid_users(message: Message):
         if not tg_id:
             continue
 
-        if tg_id not in paid_ids:
-            unpaid_names.append(user["ПІБ"])
+        if (
+        tg_id not in paid_ids
+        and user["ПІБ"] != birthday_name
+    ):
+        unpaid_names.append(user["ПІБ"])
 
     if not unpaid_names:
         await message.answer("✅ Усі оплатили")
