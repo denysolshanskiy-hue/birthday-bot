@@ -9,6 +9,14 @@ from services.sheets import (
     collections_sheet,
     payments_sheet
 )
+from datetime import datetime
+
+payments_sheet.append_row([
+    collection_id,
+    user_id,
+    full_name,
+    datetime.now().strftime("%d.%m.%Y %H:%M")
+])
 from services.sheets import (
     get_all_users
 )
@@ -247,10 +255,15 @@ async def not_paid_handler(message: Message):
     not_paid = []
 
     for user in users:
+
+        tg_id = str(user["TG_ID"])
+
         if (
-            str(user["TG_ID"]) in participant_ids
+            tg_id
             and
-            str(user["TG_ID"]) not in paid_ids
+            tg_id in participant_ids
+            and
+            tg_id not in paid_ids
         ):
             not_paid.append(user["ПІБ"])
 
