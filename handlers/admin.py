@@ -145,7 +145,7 @@ async def unpaid_users(
     participant_ids = [
     x.strip()
     for x in str(
-        latest_collection["participants"]
+        latest_collection["created_at"]
     ).split(",")
 ]
     
