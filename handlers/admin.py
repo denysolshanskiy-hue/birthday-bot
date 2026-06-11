@@ -175,4 +175,55 @@ async def unpaid_users(message: Message):
 @router.callback_query(
     F.data == "remind_unpaid"
 )
-async def remind_unpaid(callback):
+async def remind_unpaid(
+    callback: CallbackQuery
+):
+
+    payments = payments_sheet.get_all_records()
+    users = get_all_users()
+
+    paid_ids = {
+        str(payment["user_id"]).strip()
+        for payment in payments
+        if str(payment["collection_id"]) == "1"
+    }
+
+    reminder_text = (
+        "🔔 Нагадування\n\n"
+        "Ви ще не підтвердили оплату збору.\n\n"
+        "Сума: 143 грн\n\n"
+        "https://send.monobank.ua/jar/6siNn8uvXQ"
+    )
+
+    count = 0
+
+    for user in users:
+
+        tg_id = str(user["TG_ID"]).strip()
+
+        if (
+            tg_id
+            and tg_id not in paid_ids
+            and user["ПІБ"] != "Бондар Альона Олександрівна"
+        ):
+            try:
+
+                await callback.bot.send_message(
+                    int(tg_id),
+                    reminder_text
+                )
+
+                count += 1
+
+            except Exception as e:
+                print(e)
+
+    await callback.message.edit_reply_markup(
+        reply_markup=None
+    )
+
+    await callback.message.answer(
+        f"🔔 Надіслано нагадування: {count}"
+    )
+
+    await callback.answer()
