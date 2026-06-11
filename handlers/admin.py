@@ -19,15 +19,17 @@ router = Router()
 async def active_collections(
     message: Message
 ):
-    collections = (
-        collections_sheet.get_all_records()
-    )
+    collections = collections_sheet.get_all_records()
 
     if not collections:
         await message.answer(
             "Активних зборів немає"
         )
         return
+
+    latest_collection = collections[-1]
+
+    birthday_name = latest_collection["birthday_name"]
 
     text = "🎉 Активні збори:\n\n"
 
