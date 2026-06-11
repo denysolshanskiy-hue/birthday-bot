@@ -175,8 +175,8 @@ async def unpaid_users(message: Message):
     f"paid={list(paid_ids)}\n\n"
     f"birthday={birthday_name}\n\n"
     f"unpaid={unpaid_names}"
-)
-return
+    )
+    return
 
     text = (
         f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
