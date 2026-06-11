@@ -123,86 +123,41 @@ async def participants(
     await message.answer(text)
 #========================== not paid ==================================
 @router.message(F.text == "❌ Не оплатили")
-async def unpaid_users(
-    message: Message
-):
-    collections = (
-        collections_sheet.get_all_records()
-    )
+async def unpaid_users(message: Message):
 
-    payments = (
-        payments_sheet.get_all_records()
-    )
-
-    if not collections:
-        await message.answer(
-            "Активних зборів немає"
-        )
-        return
-
-    latest_collection = collections[-1]
-
-    participant_ids = [
-    x.strip()
-    for x in str(
-        latest_collection["created_at"]
-    ).split(",")
-]
-    
-    paid_ids = [
-        str(payment["user_id"]).replace("'", "").strip()
-        for payment in payments
-        if str(payment["collection_id"])
-        ==
-        str(latest_collection["collection_id"])
-    ]
-
-    await message.answer(
-    repr(latest_collection)
-    )
-    return
-
+    payments = payments_sheet.get_all_records()
     users = get_all_users()
+
+    paid_ids = {
+        str(payment["user_id"]).strip()
+        for payment in payments
+        if str(payment["collection_id"]) == "1"
+    }
 
     unpaid_names = []
 
     for user in users:
 
-        tg_id = str(
-            user["TG_ID"]
-        ).strip()
+        tg_id = str(user["TG_ID"]).strip()
 
-        # беремо тільки авторизованих
+        # тільки авторизовані
         if not tg_id:
             continue
 
-        if (
-            tg_id in participant_ids
-            and
-            tg_id not in paid_ids
-        ):
-            unpaid_names.append(
-                user["ПІБ"]
-            )
-    print("participant_ids =", participant_ids)
-    print("paid_ids =", paid_ids)
-    print("unpaid_names =", unpaid_names)
+        # не враховуємо іменинника
+        if user["ПІБ"] == "Бондар Альона Олександрівна":
+            continue
+
+        if tg_id not in paid_ids:
+            unpaid_names.append(user["ПІБ"])
+
     if not unpaid_names:
-        await message.answer(
-            "✅ Усі оплатили"
-        )
+        await message.answer("✅ Усі оплатили")
         return
 
     text = (
         f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
+        + "\n".join(f"• {name}" for name in unpaid_names)
     )
 
-    for name in unpaid_names:
-        text += f"• {name}\n"
-
     await message.answer(text)
-    await message.answer(
-    f"participants={len(participant_ids)}\n"
-    f"paid={len(paid_ids)}\n"
-    f"unpaid={len(unpaid_names)}"
-)
