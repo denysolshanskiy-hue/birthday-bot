@@ -128,10 +128,15 @@ async def participants(
 @router.message(F.text == "❌ Не оплатили")
 async def unpaid_users(message: Message):
 
-    payments = payments_sheet.get_all_records()
-    users = get_all_users()
+    collections = collections_sheet.get_all_records()
 
-    latest_collection = collections_sheet.get_all_records()[-1]
+    if not collections:
+        await message.answer(
+            "Активних зборів немає"
+        )
+        return
+
+    latest_collection = collections[-1]
 
     birthday_name = latest_collection["birthday_name"]
 
@@ -142,6 +147,8 @@ async def unpaid_users(message: Message):
         ).split(",")
     ]
 
+    payments = payments_sheet.get_all_records()
+
     paid_ids = {
         str(payment["user_id"]).strip()
         for payment in payments
@@ -149,6 +156,8 @@ async def unpaid_users(message: Message):
         ==
         str(latest_collection["collection_id"])
     }
+
+    users = get_all_users()
 
     unpaid_names = []
 
@@ -170,17 +179,16 @@ async def unpaid_users(message: Message):
                 user["ПІБ"]
             )
 
-    await message.answer(
-    f"participants={participant_ids}\n\n"
-    f"paid={list(paid_ids)}\n\n"
-    f"birthday={birthday_name}\n\n"
-    f"unpaid={unpaid_names}"
-    )
-    return
+    if not unpaid_names:
+        await message.answer(
+            "✅ Усі оплатили"
+        )
+        return
 
     text = (
         f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
-        + "\n".join(
+        +
+        "\n".join(
             f"• {name}"
             for name in unpaid_names
         )
@@ -200,19 +208,40 @@ async def remind_unpaid(
     callback: CallbackQuery
 ):
 
+    collections = collections_sheet.get_all_records()
+
+    if not collections:
+        await callback.answer()
+        return
+
+    latest_collection = collections[-1]
+
+    birthday_name = latest_collection["birthday_name"]
+
+    participant_ids = [
+        x.strip()
+        for x in str(
+            latest_collection["created_at"]
+        ).split(",")
+    ]
+
     payments = payments_sheet.get_all_records()
-    users = get_all_users()
 
     paid_ids = {
         str(payment["user_id"]).strip()
         for payment in payments
-        if str(payment["collection_id"]) == "1"
+        if str(payment["collection_id"])
+        ==
+        str(latest_collection["collection_id"])
     }
+
+    users = get_all_users()
 
     reminder_text = (
         "🔔 Нагадування\n\n"
-        "Ви ще не підтвердили оплату збору.\n\n"
-        "Сума: 143 грн\n\n"
+        f"Ви ще не підтвердили оплату збору для "
+        f"{birthday_name}.\n\n"
+        f"Сума: {latest_collection['amount']} грн\n\n"
         "https://send.monobank.ua/jar/6siNn8uvXQ"
     )
 
@@ -220,12 +249,15 @@ async def remind_unpaid(
 
     for user in users:
 
-        tg_id = str(user["TG_ID"]).strip()
+        tg_id = str(
+            user["TG_ID"]
+        ).strip()
 
         if (
             tg_id
+            and tg_id in participant_ids
             and tg_id not in paid_ids
-            and user["ПІБ"] != "Бондар Альона Олександрівна"
+            and user["ПІБ"] != birthday_name
         ):
             try:
 
