@@ -148,7 +148,7 @@ async def unpaid_users(
         latest_collection["participants"]
     ).split(",")
 ]
-)
+    
     paid_ids = [
         str(payment["user_id"]).replace("'", "").strip()
         for payment in payments
