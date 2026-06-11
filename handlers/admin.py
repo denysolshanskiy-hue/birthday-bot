@@ -218,58 +218,6 @@ async def test_collection(message: Message):
     await message.answer(
         "✅ Збір запущено"
     )
-@router.message(F.text == "❌ Не оплатили")
-async def not_paid_handler(message: Message):
-
-    collection = get_last_collection()
-
-    if not collection:
-        await message.answer(
-            "Активних зборів немає"
-        )
-        return
-
-    participant_ids = str(
-        collection["participants"]
-    ).split(",")
-
-    payments = get_collection_payments(
-        collection["collection_id"]
-    )
-
-    paid_ids = {
-        str(payment["user_id"])
-        for payment in payments
-    }
-
-    users = get_all_users()
-
-    not_paid = []
-
-    for user in users:
-
-        tg_id = str(user["TG_ID"])
-
-        if (
-            tg_id
-            and
-            tg_id in participant_ids
-            and
-            tg_id not in paid_ids
-        ):
-            not_paid.append(user["ПІБ"])
-
-    if not not_paid:
-        await message.answer(
-            "✅ Усі учасники оплатили"
-        )
-        return
-
-    text = (
-        f"❌ Не оплатили ({len(not_paid)}):\n\n"
-        + "\n".join(
-            f"• {name}"
-            for name in not_paid
         )
     )
 
