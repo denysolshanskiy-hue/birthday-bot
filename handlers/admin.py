@@ -142,12 +142,15 @@ async def unpaid_users(
 
     latest_collection = collections[-1]
 
-    participant_ids = str(
+    participant_ids = [
+    x.strip()
+    for x in str(
         latest_collection["created_at"]
-    ).split(",")
+    ).replace("\n", "").split(",")
+    ]
 
     paid_ids = [
-        str(payment["user_id"])
+        str(payment["user_id"]).replace("'", "").strip()
         for payment in payments
         if str(payment["collection_id"])
         ==
@@ -193,7 +196,11 @@ async def unpaid_users(
         text += f"• {name}\n"
 
     await message.answer(text)
-
+    await message.answer(
+    f"participants={len(participant_ids)}\n"
+    f"paid={len(paid_ids)}\n"
+    f"unpaid={len(unpaid_names)}"
+)
 @router.message(F.text == "🚀 Тестовий збір")
 async def test_collection(message: Message):
     from services.birthday import (
