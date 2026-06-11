@@ -176,7 +176,9 @@ async def unpaid_users(
             unpaid_names.append(
                 user["ПІБ"]
             )
-
+print("participant_ids =", participant_ids)
+print("paid_ids =", paid_ids)
+print("unpaid_names =", unpaid_names)
     if not unpaid_names:
         await message.answer(
             "✅ Усі оплатили"
