@@ -138,3 +138,22 @@ def user_already_registered(tg_id: int):
             return True
 
     return False
+def get_last_collection():
+    collections = collections_sheet.get_all_records()
+
+    if not collections:
+        return None
+
+    return collections[-1]
+
+
+def get_collection_payments(collection_id):
+    payments = payments_sheet.get_all_records()
+
+    result = []
+
+    for payment in payments:
+        if str(payment["collection_id"]) == str(collection_id):
+            result.append(payment)
+
+    return result
