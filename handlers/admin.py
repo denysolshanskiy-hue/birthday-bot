@@ -1,5 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from services.sheets import (
     get_last_collection,
     get_collection_payments,
@@ -139,19 +140,14 @@ async def unpaid_users(message: Message):
     unpaid_names = []
 
     for user in users:
-        birthday_name = latest_collection["birthday_name"]
-        
+
         tg_id = str(user["TG_ID"]).strip()
 
-        if (
-            tg_id
-            and tg_id not in paid_ids
-            and user["ПІБ"] != birthday_name
-        ):
-            await callback.bot.send_message(
-                tg_id,
-                reminder_text
-            )
+        if not tg_id:
+            continue
+
+        if tg_id not in paid_ids:
+            unpaid_names.append(user["ПІБ"])
 
     if not unpaid_names:
         await message.answer("✅ Усі оплатили")
@@ -168,13 +164,6 @@ async def unpaid_users(message: Message):
         text,
         reply_markup=remind_button()
     )
-
-    await callback.message.answer(
-        f"🔔 Надіслано {count} нагадувань"
-    )
-    await callback.message.edit_reply_markup(
-    reply_markup=None
-)
 @router.callback_query(
     F.data == "remind_unpaid"
 )
