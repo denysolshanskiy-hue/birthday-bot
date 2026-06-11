@@ -6,7 +6,19 @@ from services.sheets import (
     payment_exists,
     get_all_users
 )
+from datetime import datetime
 
+def add_payment(
+    collection_id: int,
+    user_id: str,
+    full_name: str
+):
+    payments_sheet.append_row([
+        collection_id,
+        user_id,
+        full_name,
+        datetime.now().strftime("%d.%m.%Y %H:%M")
+    ])
 router = Router()
 
 
