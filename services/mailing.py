@@ -1,9 +1,9 @@
 from keyboards.inline import paid_button
 
-from services.sheets import create_collection
 from services.sheets import (
     create_collection,
-    collection_exists
+    collection_exists,
+    add_all_participants_to_payments
 )
 BANK_LINK = "https://send.monobank.ua/jar/6siNn8uvXQ"
 
@@ -31,6 +31,13 @@ async def send_collection(
         for participant in participants
     ]
 )
+    
+    # Додати всіх учасників до payments з порожнім paid_at
+    add_all_participants_to_payments(
+        collection_id,
+        birthday_user["ПІБ"]
+    )
+
     text = (
         f"😻Привіт, котики🎉 Через 2 дні день народження у "
         f"{birthday_user['ПІБ']}\n\n"
