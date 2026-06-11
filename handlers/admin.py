@@ -142,16 +142,13 @@ async def unpaid_users(
 
     latest_collection = collections[-1]
 
-    await message.answer(str(latest_collection))
-    return
-
     participant_ids = [
     x.strip()
     for x in str(
-        latest_collection["created_at"]
-    ).replace("\n", "").split(",")
-    ]
-
+        latest_collection["participants"]
+    ).split(",")
+]
+)
     paid_ids = [
         str(payment["user_id"]).replace("'", "").strip()
         for payment in payments
@@ -159,6 +156,11 @@ async def unpaid_users(
         ==
         str(latest_collection["collection_id"])
     ]
+
+    await message.answer(
+    f"participants={len(participant_ids)}\n"
+    f"paid={len(paid_ids)}"
+)
 
     users = get_all_users()
 
