@@ -158,9 +158,9 @@ async def unpaid_users(
     ]
 
     await message.answer(
-    f"participants={len(participant_ids)}\n"
-    f"paid={len(paid_ids)}"
+    str(latest_collection["participants"])
 )
+return
 
     users = get_all_users()
 
