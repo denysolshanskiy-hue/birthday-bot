@@ -159,8 +159,8 @@ async def unpaid_users(
 
     await message.answer(
     "DEBUG PARTICIPANTS"
-)
-return
+    )
+    return
 
     users = get_all_users()
 
