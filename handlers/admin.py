@@ -148,7 +148,7 @@ async def unpaid_users(message: Message):
         if not tg_id:
             continue
 
-        if (
+    if (
         tg_id not in paid_ids
         and user["ПІБ"] != birthday_name
     ):
