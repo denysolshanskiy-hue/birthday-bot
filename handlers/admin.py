@@ -170,11 +170,13 @@ async def unpaid_users(message: Message):
                 user["ПІБ"]
             )
 
-    if not unpaid_names:
-        await message.answer(
-            "✅ Усі оплатили"
-        )
-        return
+    await message.answer(
+    f"participants={participant_ids}\n\n"
+    f"paid={list(paid_ids)}\n\n"
+    f"birthday={birthday_name}\n\n"
+    f"unpaid={unpaid_names}"
+)
+return
 
     text = (
         f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
