@@ -168,7 +168,6 @@ async def unpaid_users(
 
     tg_id = str(user["TG_ID"]).strip()
 
-    # пропускаємо всіх без TG_ID
     if not tg_id:
         continue
 
