@@ -139,60 +139,27 @@ async def unpaid_users(message: Message):
     latest_collection = collections[-1]
 
     birthday_name = latest_collection["birthday_name"]
-
-    participant_ids = [
-        x.strip()
-        for x in str(
-            latest_collection["participants"]
-        ).split(",")
-    ]
+    collection_id = latest_collection["collection_id"]
 
     payments = payments_sheet.get_all_records()
 
-    paid_ids = {
-        str(payment["user_id"]).strip()
-        for payment in payments
-        if str(payment["collection_id"])
-        ==
-        str(latest_collection["collection_id"])
-    }
+    # Знайти записи для цього збору без заповненої дати оплати
+    unpaid_records = [
+        payment for payment in payments
+        if (str(payment["collection_id"]) == str(collection_id) and
+            not str(payment.get("paid_at", "")).strip())
+    ]
 
-    users = get_all_users()
-
-    unpaid_names = []
-
-    print(f"DEBUG: Участники: {participant_ids}")
-    print(f"DEBUG: Оплачено: {paid_ids}")
-    print(f"DEBUG: День рождения: {birthday_name}")
-
-    for user in users:
-
-        tg_id = str(
-            user["TG_ID"]
-        ).strip()
-
-        if not tg_id:
-            continue
-
-        print(f"DEBUG: Перевірка {user['ПІБ']} (TG_ID: {tg_id})")
-        print(f"  - В учасниках? {tg_id in participant_ids}")
-        print(f"  - Оплатив? {tg_id in paid_ids}")
-        print(f"  - День рождения? {user['ПІБ'] == birthday_name}")
-
-        if (
-            tg_id in participant_ids
-            and tg_id not in paid_ids
-            and user["ПІБ"] != birthday_name
-        ):
-            unpaid_names.append(
-                user["ПІБ"]
-            )
-
-    if not unpaid_names:
+    if not unpaid_records:
         await message.answer(
             "✅ Усі оплатили"
         )
         return
+
+    unpaid_names = [
+        record["full_name"] 
+        for record in unpaid_records
+    ]
 
     text = (
         f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
@@ -226,25 +193,16 @@ async def remind_unpaid(
     latest_collection = collections[-1]
 
     birthday_name = latest_collection["birthday_name"]
-
-    participant_ids = [
-        x.strip()
-        for x in str(
-            latest_collection["participants"]
-        ).split(",")
-    ]
+    collection_id = latest_collection["collection_id"]
 
     payments = payments_sheet.get_all_records()
 
-    paid_ids = {
-        str(payment["user_id"]).strip()
-        for payment in payments
-        if str(payment["collection_id"])
-        ==
-        str(latest_collection["collection_id"])
-    }
-
-    users = get_all_users()
+    # Знайти записи для цього збору без заповненої дати оплати
+    unpaid_records = [
+        payment for payment in payments
+        if (str(payment["collection_id"]) == str(collection_id) and
+            not str(payment.get("paid_at", "")).strip())
+    ]
 
     reminder_text = (
         "🔔 Нагадування\n\n"
@@ -255,30 +213,21 @@ async def remind_unpaid(
     )
 
     count = 0
+    users = get_all_users()
+    user_tg_map = {str(user["TG_ID"]).strip(): user for user in users}
 
-    for user in users:
+    for record in unpaid_records:
+        tg_id = str(record["user_id"]).strip()
+        
+        try:
+            await callback.bot.send_message(
+                int(tg_id),
+                reminder_text
+            )
+            count += 1
 
-        tg_id = str(
-            user["TG_ID"]
-        ).strip()
-
-        if (
-            tg_id
-            and tg_id in participant_ids
-            and tg_id not in paid_ids
-            and user["ПІБ"] != birthday_name
-        ):
-            try:
-
-                await callback.bot.send_message(
-                    int(tg_id),
-                    reminder_text
-                )
-
-                count += 1
-
-            except Exception as e:
-                print(e)
+        except Exception as e:
+            print(f"Помилка надсилання {record['full_name']}: {e}")
 
     await callback.message.edit_reply_markup(
         reply_markup=None
