@@ -9,14 +9,6 @@ from services.sheets import (
     collections_sheet,
     payments_sheet
 )
-from datetime import datetime
-
-payments_sheet.append_row([
-    collection_id,
-    user_id,
-    full_name,
-    datetime.now().strftime("%d.%m.%Y %H:%M")
-])
 from services.sheets import (
     get_all_users
 )
