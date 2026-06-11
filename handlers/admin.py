@@ -142,22 +142,16 @@ async def unpaid_users(
 
     latest_collection = collections[-1]
 
-    participants = str(
+    participant_ids = str(
         latest_collection["participants"]
     ).split(",")
 
-    paid_users = [
-        payment["user_id"]
+    paid_ids = [
+        str(payment["user_id"])
         for payment in payments
         if str(payment["collection_id"])
         ==
         str(latest_collection["collection_id"])
-    ]
-
-    unpaid = [
-        user_id
-        for user_id in participants
-        if user_id not in paid_users
     ]
 
     users = get_all_users()
@@ -166,17 +160,22 @@ async def unpaid_users(
 
     for user in users:
 
-    tg_id = str(user["TG_ID"]).strip()
+        tg_id = str(
+            user["TG_ID"]
+        ).strip()
 
-    if not tg_id:
-        continue
+        # беремо тільки авторизованих
+        if not tg_id:
+            continue
 
-    if (
-        tg_id in participant_ids
-        and
-        tg_id not in paid_ids
-    ):
-        not_paid.append(user["ПІБ"])
+        if (
+            tg_id in participant_ids
+            and
+            tg_id not in paid_ids
+        ):
+            unpaid_names.append(
+                user["ПІБ"]
+            )
 
     if not unpaid_names:
         await message.answer(
@@ -185,7 +184,7 @@ async def unpaid_users(
         return
 
     text = (
-        "❌ Не оплатили:\n\n"
+        f"❌ Не оплатили ({len(unpaid_names)}):\n\n"
     )
 
     for name in unpaid_names:
