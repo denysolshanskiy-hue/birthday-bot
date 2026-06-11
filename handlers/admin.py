@@ -1,6 +1,10 @@
 from aiogram import Router, F
 from aiogram.types import Message
-
+from services.sheets import (
+    get_last_collection,
+    get_collection_payments,
+    get_all_users
+)
 from services.sheets import (
     collections_sheet,
     payments_sheet
@@ -214,3 +218,54 @@ async def test_collection(message: Message):
     await message.answer(
         "✅ Збір запущено"
     )
+@router.message(F.text == "❌ Не оплатили")
+async def not_paid_handler(message: Message):
+
+    collection = get_last_collection()
+
+    if not collection:
+        await message.answer(
+            "Активних зборів немає"
+        )
+        return
+
+    participant_ids = str(
+        collection["participants"]
+    ).split(",")
+
+    payments = get_collection_payments(
+        collection["collection_id"]
+    )
+
+    paid_ids = {
+        str(payment["user_id"])
+        for payment in payments
+    }
+
+    users = get_all_users()
+
+    not_paid = []
+
+    for user in users:
+        if (
+            str(user["TG_ID"]) in participant_ids
+            and
+            str(user["TG_ID"]) not in paid_ids
+        ):
+            not_paid.append(user["ПІБ"])
+
+    if not not_paid:
+        await message.answer(
+            "✅ Усі учасники оплатили"
+        )
+        return
+
+    text = (
+        f"❌ Не оплатили ({len(not_paid)}):\n\n"
+        + "\n".join(
+            f"• {name}"
+            for name in not_paid
+        )
+    )
+
+    await message.answer(text)
