@@ -165,10 +165,19 @@ async def unpaid_users(
     unpaid_names = []
 
     for user in users:
-        if str(user["TG_ID"]) in unpaid:
-            unpaid_names.append(
-                user["ПІБ"]
-            )
+
+    tg_id = str(user["TG_ID"]).strip()
+
+    # пропускаємо всіх без TG_ID
+    if not tg_id:
+        continue
+
+    if (
+        tg_id in participant_ids
+        and
+        tg_id not in paid_ids
+    ):
+        not_paid.append(user["ПІБ"])
 
     if not unpaid_names:
         await message.answer(
