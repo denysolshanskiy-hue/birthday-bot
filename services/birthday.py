@@ -43,6 +43,10 @@ def get_upcoming_birthdays(days_ahead=2):
     users = get_all_users()
 
     for user in users:
+        # ✅ ПЕРЕВІРКА: Пропускаємо неавторизованих користувачів
+        if not user["TG_ID"] or not str(user["TG_ID"]).strip():
+            continue
+        
         birthday = parse_birthday(user["ДН"])
 
         if not birthday:
