@@ -27,3 +27,15 @@ def remind_button():
             ]
         ]
     )
+
+def manual_collection_button():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🎉 Запустити збір",
+                    callback_data="manual_collection"
+                )
+            ]
+        ]
+    )
