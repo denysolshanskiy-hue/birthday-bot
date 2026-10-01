@@ -34,7 +34,7 @@ def setup_scheduler(bot):
     birthday_check,
     trigger="cron",
     hour=19,
-    minute=10,
+    minute=23,
     kwargs={"bot": bot}
 )
     scheduler.add_job(
