@@ -13,6 +13,12 @@ from services.sheets import (
 from services.sheets import (
     get_all_users
 )
+from services.birthday import (
+    get_upcoming_birthdays,
+    build_collection_data
+)
+from services.mailing import send_collection
+
 router = Router()
 
 
@@ -238,3 +244,88 @@ async def remind_unpaid(
     )
 
     await callback.answer()
+
+#========================== Manual Collection ==================================
+@router.message(F.text == "🎉 Запустити збір вручну")
+async def manual_collection_trigger(
+    message: Message
+):
+    """Дозволяє адміну запустити збір для найближчого ДН вручну"""
+    
+    users = get_all_users()
+    
+    active_users = [
+        user for user in users
+        if str(user["TG_ID"]).strip()
+    ]
+
+    if not active_users:
+        await message.answer(
+            "Немає авторизованих учасників"
+        )
+        return
+
+    # Отримуємо найближчий ДН
+    birthdays = get_upcoming_birthdays(days_ahead=0)
+    
+    if not birthdays:
+        await message.answer(
+            "❌ Немає найближчих днів народження (перевіряється на сьогодні та завтра)"
+        )
+        return
+
+    from keyboards.inline import manual_collection_button
+    
+    birthday_text = "🎉 Найближчі дні народження:\n\n"
+    for birthday_user in birthdays:
+        birthday_text += f"👤 {birthday_user['ПІБ']} ({birthday_user['ДН']})\n"
+    
+    birthday_text += "\n✅ Запустити збір для перших знайдених?"
+
+    await message.answer(
+        birthday_text,
+        reply_markup=manual_collection_button()
+    )
+
+@router.callback_query(
+    F.data == "manual_collection"
+)
+async def process_manual_collection(
+    callback: CallbackQuery
+):
+    """Обробляє запуск ручного збору"""
+    
+    # Отримуємо найближчий ДН
+    birthdays = get_upcoming_birthdays(days_ahead=0)
+    
+    if not birthdays:
+        await callback.answer(
+            "❌ Немає найближчих днів народження",
+            show_alert=True
+        )
+        return
+
+    # Обробляємо першого знайденого користувача
+    birthday_user = birthdays[0]
+    
+    collection = build_collection_data(
+        birthday_user
+    )
+
+    await send_collection(
+        callback.bot,
+        collection
+    )
+
+    await callback.message.edit_reply_markup(
+        reply_markup=None
+    )
+
+    await callback.message.answer(
+        f"✅ Збір для {birthday_user['ПІБ']} ({birthday_user['ДН']}) запущений!\n\n"
+        f"Обидва учасників отримали повідомлення 🎉"
+    )
+
+    await callback.answer(
+        "Збір запущений успішно!"
+    )
