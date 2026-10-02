@@ -266,7 +266,7 @@ async def manual_collection_trigger(
         return
 
     # Отримуємо найближчий ДН
-    birthdays = get_upcoming_birthdays(days_ahead=0)
+    birthdays = get_upcoming_birthdays(days_ahead=1)
     
     if not birthdays:
         await message.answer(
