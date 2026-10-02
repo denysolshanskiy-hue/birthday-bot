@@ -296,7 +296,7 @@ async def process_manual_collection(
     """Обробляє запуск ручного збору"""
     
     # Отримуємо найближчий ДН
-    birthdays = get_upcoming_birthdays(days_ahead=0)
+    birthdays = get_upcoming_birthdays(days_ahead=1)
     
     if not birthdays:
         await callback.answer(
